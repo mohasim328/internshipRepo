@@ -1,12 +1,13 @@
 // App.jsx
 import React, { useEffect, useState } from 'react';
-import BeerCard from './BeeerCard';
 import Header from './Header';
+import BeerCard from './BeeerCard';
 
 const App = () => {
   const [beers, setBeers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchBeers = async () => {
@@ -17,7 +18,6 @@ const App = () => {
         }
         const data = await response.json();
         setBeers(data);
-        console.log(data)
       } catch (error) {
         setError(error.message);
       } finally {
@@ -28,6 +28,14 @@ const App = () => {
     fetchBeers();
   }, []);
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  const filteredBeers = beers.filter(beer =>
+    beer.name.toLowerCase().includes(searchQuery)
+  );
+
   if (loading) {
     return <div className="text-center text-xl">Loading...</div>;
   }
@@ -37,23 +45,22 @@ const App = () => {
   }
 
   return (
-    <>
-      <Header/>
-      <div className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold text-center mb-6">Ales</h1>
-
-        <div className='mx-auto flex justify-center items-center '>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {beers.map((beer) => (
+    <div className="container mx-auto p-4">
+      <Header />
+      <h2 className="text-3xl font-bold text-center mb-6">Ales</h2>
+      <input
+        type="text"
+        placeholder="Search for a beer..."
+        value={searchQuery}
+        onChange={handleSearchChange}
+        className="w-full p-2 border border-gray-300 rounded mb-4"
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredBeers.map((beer) => (
           <BeerCard key={beer.id} beer={beer} />
         ))}
       </div>
-        </div>
-       
-      </div>
-    </>
-
-
+    </div>
   );
 };
 
